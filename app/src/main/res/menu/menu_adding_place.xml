@@ -1,0 +1,25 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.wisdompark.minichoucreme.ui.MainActivity">
+    <item
+        android:id="@+id/place_add"
+        android:orderInCategory="100"
+        android:title="Adding Place"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/place_manual"
+        android:orderInCategory="100"
+        android:title="Adding Manual"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/place_remote"
+        android:orderInCategory="100"
+        android:title="Adding Remote"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/place_preset"
+        android:orderInCategory="100"
+        android:title="Adding Preset"
+        app:showAsAction="never" />
+</menu>

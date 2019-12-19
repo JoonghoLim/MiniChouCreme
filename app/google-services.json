@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "92782450176",
+    "firebase_url": "https://minichoucreme.firebaseio.com",
+    "project_id": "minichoucreme",
+    "storage_bucket": "minichoucreme.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:92782450176:android:e9ae0611817e25e764eae5",
+        "android_client_info": {
+          "package_name": "com.wisdompark.minichoucreme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "92782450176-e8bsfn2s0bf8s5iu5tsb0a8q25ot9ova.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wisdompark.minichoucreme",
+            "certificate_hash": "74d85fe581bb6d86a9d762088b5d51f38848d3d7"
+          }
+        },
+        {
+          "client_id": "92782450176-h400d6056q4egbe2fnj16uq49tjl0vpo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVRc76ZicaZaE4c5RW9uiEy_WlhWFupPc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "92782450176-h400d6056q4egbe2fnj16uq49tjl0vpo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
