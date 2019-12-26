@@ -193,32 +193,33 @@ public class EmailPasswordActivity extends BaseActivity implements View.OnClickL
         if (user != null) {
             Intent intent = new Intent(this, MainActivity.class);
             //intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            startActivity(intent);
+            if(disp_type == 0) { //초기 진입시
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startActivity(intent);
+            }else{
+                if (user.getPhotoUrl() != null) {
+                    new DownloadImageTask().execute(user.getPhotoUrl().toString());
+                }
+                mTextViewProfile.setText("DisplayName: " + user.getDisplayName());
+                mTextViewProfile.append("\n\n");
+                mTextViewProfile.append("Email: " + user.getEmail());
+                mTextViewProfile.append("\n\n");
+                mTextViewProfile.append("Firebase ID: " + user.getUid());
+                mTextViewProfile.append("\n\n");
+                mTextViewProfile.append("Email Verification: " + user.isEmailVerified());
 
-            /*
-            if (user.getPhotoUrl() != null) {
-                new DownloadImageTask().execute(user.getPhotoUrl().toString());
+                //if (user.isEmailVerified()) {
+                if (true) {
+                    findViewById(R.id.verify_button).setVisibility(View.GONE);
+                } else {
+                    findViewById(R.id.verify_button).setVisibility(View.VISIBLE);
+                }
+
+                findViewById(R.id.email_password_buttons).setVisibility(View.GONE);
+                findViewById(R.id.email_password_fields).setVisibility(View.GONE);
+                findViewById(R.id.signout_zone).setVisibility(View.VISIBLE);
             }
-            mTextViewProfile.setText("DisplayName: " + user.getDisplayName());
-            mTextViewProfile.append("\n\n");
-            mTextViewProfile.append("Email: " + user.getEmail());
-            mTextViewProfile.append("\n\n");
-            mTextViewProfile.append("Firebase ID: " + user.getUid());
-            mTextViewProfile.append("\n\n");
-            mTextViewProfile.append("Email Verification: " + user.isEmailVerified());
 
-            if (user.isEmailVerified()) {
-                findViewById(R.id.verify_button).setVisibility(View.GONE);
-            } else {
-                findViewById(R.id.verify_button).setVisibility(View.VISIBLE);
-            }
-
-            findViewById(R.id.email_password_buttons).setVisibility(View.GONE);
-            findViewById(R.id.email_password_fields).setVisibility(View.GONE);
-            findViewById(R.id.signout_zone).setVisibility(View.VISIBLE);
-
-             */
         } else {
             mTextViewProfile.setText(null);
 
@@ -254,6 +255,15 @@ public class EmailPasswordActivity extends BaseActivity implements View.OnClickL
     @Override
     protected void onPause() {
         super.onPause();
-        finish();
+        if(disp_type == 0) //초기 진입시
+            finish();
+    }
+
+    public int disp_type = -1;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent intent = getIntent();
+        disp_type = intent.getIntExtra("DISPLAY_TYPE",0);
     }
 }

@@ -96,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         list_fprint = (ListView) findViewById(R.id.list_fprint);
         list_fprint.setOnItemClickListener(this);
+
+        mAuth = FirebaseAuth.getInstance();
         updateUI();
 
 
@@ -116,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         }
 
-        mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void setPreferences() {
+        FirebaseUser user = mAuth.getCurrentUser();
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         boolean switchSP = sp.getBoolean("sync",false);
         String strEmail = sp.getString("watching_email","");
@@ -153,13 +155,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         MiniChouContext.setIsParentsMode(switchSP);
         MiniChouContext.setWatching_email(strEmail);
 
-        MiniChouContext.setMyEmail(mAuth.getCurrentUser().getEmail());
+        if( user != null )
+            MiniChouContext.setMyEmail(user.getEmail());
     }
 
     private void updateUI(){
-        adapter = new MessageAdapter(this, MiniChouContext.getmFPrintInfoList());
-        list_fprint.setAdapter(adapter);
-        list_fprint.setSelection(MiniChouContext.getmFPrintInfoList().size() - 1);
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            adapter = new MessageAdapter(this, MiniChouContext.getmFPrintInfoList());
+            list_fprint.setAdapter(adapter);
+            list_fprint.setSelection(MiniChouContext.getmFPrintInfoList().size() - 1);
+        }else{
+            finish();
+        }
     }
     /* Location permission 을 위한 메서드들 */
     private boolean checkPermissions() {
@@ -203,12 +211,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int id = item.getItemId();
         Intent intent;
         switch(id){
+            /*
             case R.id.action_logout:
                 mAuth.signOut();
                 finish();
                 break;
+             */
+            case R.id.action_account:
+                intent = new Intent(this, EmailPasswordActivity.class);
+                intent.putExtra("DISPLAY_TYPE",1); //0: 처음 로그인 확인 //1: Option에서 보여주기
+                intent.addFlags (Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                break;
             case R.id.action_settings:
-
                 intent = new Intent(this, SettingsGeneralActivity.class);
                 intent.addFlags (Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -217,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
 
             case R.id.action_places:
-                intent = new Intent(this, SettingsAddPlaceActivity.class);
+                intent = new Intent(this, PlacesListActivity.class);
                 intent.addFlags (Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);

@@ -21,6 +21,10 @@
         android:roundIcon="@mipmap/ic_choux_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".ui.PlacesListActivity"
+            android:label="@string/title_activity_places_list"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <receiver
             android:name=".engin.SurvialAlarmReceiver"
@@ -47,25 +51,20 @@
             android:label="@string/title_activity_settings" />
         <activity android:name=".ui.PlaceDetailActivity" />
         <activity android:name=".ui.FPrintDetailActivity" />
-
         <activity
             android:name=".ui.MainActivity"
             android:label="미니슈"
-            android:theme="@style/AppTheme.NoActionBar">
-
-        </activity>
-        <activity android:name=".login.EmailPasswordActivity" >
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".login.EmailPasswordActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".login.ChooserActivity" />
         <activity android:name=".login.BaseActivity" />
-        <activity android:name=".login.GoogleSignInActivity" >
-
-        </activity>
-
+        <activity android:name=".login.GoogleSignInActivity" />
     </application>
 
 </manifest>

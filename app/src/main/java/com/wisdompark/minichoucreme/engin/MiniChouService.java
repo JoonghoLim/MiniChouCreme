@@ -11,9 +11,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 import androidx.work.OneTimeWorkRequest;
@@ -35,6 +38,18 @@ public class MiniChouService extends Service {
     private DatabaseReference databaseReference = firebaseDatabase.getReference();
 
     public static Intent serviceIntent = null;
+
+    private static int MESSAGE_WHAT = 0;
+    private static Handler handler= new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
+            if(msg.what == MESSAGE_WHAT){
+                Log.d(TAG,"JH-Servie check service alive or not");
+                handler.sendEmptyMessageDelayed(MESSAGE_WHAT,15000);
+            }
+            return false;
+        }
+    });
 
     public MiniChouService() {
     }
@@ -63,6 +78,8 @@ public class MiniChouService extends Service {
         mWorkManager.enqueue(mRequest);
 
         setPreferences();
+
+        handler.sendEmptyMessageDelayed(MESSAGE_WHAT,15000);
 
 
         Log.d(TAG,"JH-MyEmail:"+MiniChouContext.getMyEmail());

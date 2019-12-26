@@ -3,10 +3,13 @@ package com.wisdompark.minichoucreme.engin;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.SystemClock;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -41,6 +44,7 @@ public class WifiWorker extends Worker {
     private WifiManager wifimanager = wifimanager = (WifiManager)getApplicationContext().getSystemService(WIFI_SERVICE);;
     private Context mContext;
     private MiniChouNotification mNotification;
+    private Intent foregroundServiceIntent = null;
 
     public WifiWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -56,6 +60,8 @@ public class WifiWorker extends Worker {
         int currentState = Constraints.MNC_STATE_UNKOWN;
         String taskDataString = taskData.getString(MainActivity.MESSAGE_STATUS);
         Data outputData = new Data.Builder().putString(WORK_RESULT, "Jobs Finished").build();
+
+        preExecution(); //Check and Launch service
 
         Log.d(TAG,"JH-doWork()");
         if(wasWifiSettingEnabled == false)
@@ -204,6 +210,8 @@ public class WifiWorker extends Worker {
                 Log.d(TAG,"JH-Matched PlaceInfo:"+placeMatched);
                 break;
             }
+            //sleep 2 sec
+            SystemClock.sleep(2000);
         }
 
         int current = MiniChouContext.getmCurrentState();
@@ -285,6 +293,25 @@ public class WifiWorker extends Worker {
             }
         }
         return -1;
+    }
+
+    private void preExecution(){
+        if (null == MiniChouService.serviceIntent) {
+            foregroundServiceIntent = new Intent(mContext, MiniChouService.class);
+            mContext.startService(foregroundServiceIntent);
+            Log.d(TAG,"JH-Service died, lauching service again");
+
+        } else {
+            foregroundServiceIntent = MiniChouService.serviceIntent;
+            if(MiniChouContext.getmPlaceInfoList().size() == 0){
+                //Sometime disconnected with DB server but service is still alive
+                //At that time, we reset service for reconnect db
+                mContext.stopService(foregroundServiceIntent); //stop Service, but alarmservice will restart service again.
+                SystemClock.sleep(1000);
+                Log.d(TAG,"JH-Error appeared, so service stop to restart");
+            }
+            //Log.d(TAG,"JH-Service still alive");
+        }
     }
 
     private void postExecution(){

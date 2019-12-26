@@ -118,6 +118,7 @@
     <string name="title_activity_settings_add_place">SettingsAddPlaceActivity</string>
     <string name="title_activity_setting_add_preset">SettingAddPresetActivity</string>
     <string name="title_activity_fprint_detail">FPrintDetailActivity</string>
+    <string name="title_activity_places_list">등록장소</string>
 </resources>
 
 
