@@ -24,12 +24,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.wisdompark.minichoucreme.R;
 import com.wisdompark.minichoucreme.storage.FPrintInfo;
 import com.wisdompark.minichoucreme.storage.PlaceInfo;
+import com.wisdompark.minichoucreme.storage.UserInfo;
 import com.wisdompark.minichoucreme.ui.MainActivity;
 import com.wisdompark.minichoucreme.ui.MiniChouNotification;
 import com.wisdompark.minichoucreme.utils.Constraints;
 import com.wisdompark.minichoucreme.utils.MiniChouUtils;
 
+import org.json.JSONObject;
+
+import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -161,6 +167,9 @@ public class WifiWorker extends Worker {
 
     }
 
+    private static final String FCM_MESSAGE_URL = "https://fcm.googleapis.com/fcm/send";
+    private static final String SERVER_KEY = "AAAAFZpD1gA:APA91bFuN5NTZJ_gTuereSteTETVZhgwu47Aq5_ticUUj6EGy9fQiyEAveGEE3M2GxlWmZi12sKuus579hw2UV0uNQifiC8dLtgWDEe4i2zIgJqzim7RZSZ7Qad28sqaxIk348IEadl-";
+
     private void addDBFprint(PlaceInfo getmCurrentPlaceInfo) {
         String emailAddress = MiniChouContext.getWatching_email();
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
@@ -177,11 +186,46 @@ public class WifiWorker extends Worker {
         if(lastSentKey == null || getmCurrentPlaceInfo.getKey().equals(lastSentKey) == false){
             Log.d(TAG,"JH-addDBFprint SENT?");
             //databaseReference.child(emailAddress).child(Constraints.FPRINT_NAME).push().setValue(fPrintInfo);
+            MiniChouUtils.setPreference(mContext,Constraints.PREF_TIME_KEY,""+fPrintInfo.getmTime());
             databaseReference
                     .child(emailAddress)
                     .child(Constraints.FPRINT_NAME)
                     .child(""+fPrintInfo.getmTime())
                     .setValue(fPrintInfo.toString());
+
+            final UserInfo userInfo = MiniChouContext.getmUserInfoList().get(0);
+            final String message = fPrintInfo.toString();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // FMC 메시지 생성 start
+                        JSONObject root = new JSONObject();
+                        JSONObject notification = new JSONObject();
+                        notification.put("body", "바디");
+                        notification.put("title", message);
+                        root.put("notification", notification);
+                        root.put("to", userInfo.getuToken());
+                        // FMC 메시지 생성 end
+
+                        URL Url = new URL(FCM_MESSAGE_URL);
+                        HttpURLConnection conn = (HttpURLConnection) Url.openConnection();
+                        conn.setRequestMethod("POST");
+                        conn.setDoOutput(true);
+                        conn.setDoInput(true);
+                        conn.addRequestProperty("Authorization", "key=" + SERVER_KEY);
+                        conn.setRequestProperty("Accept", "application/json");
+                        conn.setRequestProperty("Content-type", "application/json");
+                        OutputStream os = conn.getOutputStream();
+                        os.write(root.toString().getBytes("utf-8"));
+                        os.flush();
+                        conn.getResponseCode();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
 
         MiniChouContext.setmLastSentPlaceInfo(getmCurrentPlaceInfo);
@@ -296,6 +340,7 @@ public class WifiWorker extends Worker {
     }
 
     private void preExecution(){
+        /*
         if (null == MiniChouService.serviceIntent) {
             foregroundServiceIntent = new Intent(mContext, MiniChouService.class);
             mContext.startService(foregroundServiceIntent);
@@ -312,6 +357,7 @@ public class WifiWorker extends Worker {
             }
             //Log.d(TAG,"JH-Service still alive");
         }
+        */
     }
 
     private void postExecution(){

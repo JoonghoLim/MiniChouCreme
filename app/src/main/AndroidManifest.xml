@@ -21,20 +21,17 @@
         android:roundIcon="@mipmap/ic_choux_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service
+            android:name=".engin.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".ui.PlacesListActivity"
             android:label="@string/title_activity_places_list"
             android:theme="@style/AppTheme.NoActionBar" />
-
-        <receiver
-            android:name=".engin.SurvialAlarmReceiver"
-            android:enabled="true"
-            android:exported="true" />
-
-        <service
-            android:name=".engin.MiniChouService"
-            android:enabled="true"
-            android:exported="true" />
 
         <activity android:name=".ui.SettingsAddVenueActivity" />
         <activity android:name=".ui.SettingsAddRemoteActivity" />

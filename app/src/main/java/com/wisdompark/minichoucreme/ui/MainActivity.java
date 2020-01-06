@@ -3,7 +3,6 @@ package com.wisdompark.minichoucreme.ui;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -20,24 +19,20 @@ import com.wisdompark.minichoucreme.engin.CommandRESPValueEventListener;
 import com.wisdompark.minichoucreme.engin.CommandValueEventListener;
 import com.wisdompark.minichoucreme.engin.FPrintChildListener;
 import com.wisdompark.minichoucreme.engin.MiniChouContext;
-import com.wisdompark.minichoucreme.engin.MiniChouService;
 import com.wisdompark.minichoucreme.engin.PlaceChildListener;
+import com.wisdompark.minichoucreme.engin.UserInfoChildListener;
 import com.wisdompark.minichoucreme.engin.WifiWorker;
 import com.wisdompark.minichoucreme.login.EmailPasswordActivity;
 import com.wisdompark.minichoucreme.storage.FPrintInfo;
 import com.wisdompark.minichoucreme.storage.PlaceInfo;
 import com.wisdompark.minichoucreme.utils.Constraints;
-import com.wisdompark.minichoucreme.utils.MiniChouUtils;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
-import androidx.preference.SwitchPreference;
-import androidx.preference.SwitchPreferenceCompat;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
@@ -46,9 +41,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -263,6 +256,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         setPreferences();
 
+        if(MiniChouContext.getmPlaceInfoList().size() == 0){
+            loadDB();
+        }
+
+        final WorkManager mWorkManager = WorkManager.getInstance();
+        final OneTimeWorkRequest mRequest = new OneTimeWorkRequest.Builder(WifiWorker.class)
+                .setInitialDelay(3, TimeUnit.SECONDS) //waiting for DB loading
+                .build();
+
+        mWorkManager.cancelAllWork();
+        mWorkManager.enqueue(mRequest);
+/*
         if(MiniChouContext.getMyEmail().length() > 0){
             if (null == MiniChouService.serviceIntent) {
                 foregroundServiceIntent = new Intent(this, MiniChouService.class);
@@ -275,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }else{
             Toast.makeText(getApplicationContext(), "Please Login to Start Service", Toast.LENGTH_LONG).show();
         }
-
+*/
         updateUI();
         registerReceiver(mReceiver,new IntentFilter(Constraints.INTENT_DB_UPDATED));
 
@@ -284,9 +289,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG,"JH-Watching Email:"+MiniChouContext.getWatching_email());
     }
 
+    private void loadDB() {
+        settingDB();
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
+        clearDB();
         unregisterReceiver(mReceiver);
         overridePendingTransition(0, 0);
     }
@@ -311,6 +321,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         databaseReference.child(emailAddress)
                 .child(Constraints.PLACE_NAME)
                 .addChildEventListener( PlaceChildListener.getInstance(this));
+
+        databaseReference.child(emailAddress)
+                .child(Constraints.USER_NAME)
+                .addChildEventListener(UserInfoChildListener.getInstance(this));
 
         databaseReference.child(emailAddress)
                 .child(Constraints.COMMAND_SEND_NAME)
@@ -338,6 +352,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         databaseReference.child(emailAddress)
                 .child(Constraints.PLACE_NAME)
                 .removeEventListener( PlaceChildListener.getInstance(this));
+
+        databaseReference.child(emailAddress)
+                    .child(Constraints.USER_NAME)
+                    .removeEventListener( UserInfoChildListener.getInstance(this));
 
         databaseReference.child(emailAddress)
                 .child(Constraints.COMMAND_SEND_NAME)

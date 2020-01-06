@@ -34,7 +34,7 @@ public class PlaceChildListener implements ChildEventListener {
 
         return _instance;
     }
-
+/*
     private static int MESSAGE_WHAT = 0;
     private static Handler handler= new Handler(new Handler.Callback() {
         @Override
@@ -59,6 +59,8 @@ public class PlaceChildListener implements ChildEventListener {
         handler.removeMessages(MESSAGE_WHAT);
     }
 
+ */
+
     @Override
     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
         PlaceInfo info = dataSnapshot.getValue(PlaceInfo.class);
@@ -69,16 +71,14 @@ public class PlaceChildListener implements ChildEventListener {
     @Override
     public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
         PlaceInfo info = dataSnapshot.getValue(PlaceInfo.class);
+        ArrayList<PlaceInfo> tmpArray = new ArrayList<>();
         Log.d(TAG,"JH-onChildChanged:"+info+" | s:"+s);
-        //For Test
-        /*
-        MiniChouContext.getmPlaceInfoList().clear();
-        MiniChouContext.getmPlaceInfoList().add(info);
 
-        Intent intent = new Intent(Constraints.INTENT_DB_UPDATED);
-        intent.putExtra("TYPE","PLACE");
-        mContext.sendBroadcast(intent);
-         */
+        tmpArray = removeElemnets(MiniChouContext.getmPlaceInfoList(),info.getMacList().get(0));
+        MiniChouContext.getmPlaceInfoList().clear();
+        tmpArray.add(info);
+        Log.d(TAG,"JH-"+tmpArray);
+        MiniChouContext.setmPlaceInfoList(tmpArray);
     }
 
     @Override
@@ -108,7 +108,9 @@ public class PlaceChildListener implements ChildEventListener {
         ArrayList<PlaceInfo> rList = new ArrayList<>();
 
         for(PlaceInfo aInfo: list){
-            if(aInfo.getKey().equals(rmElement))
+            Log.d(TAG,"JH-aInfo:"+aInfo.getMacList().get(0)+"| rmElement:"+rmElement);
+
+            if(aInfo.getMacList().get(0).equals(rmElement))
                 continue;
 
             rList.add(aInfo);

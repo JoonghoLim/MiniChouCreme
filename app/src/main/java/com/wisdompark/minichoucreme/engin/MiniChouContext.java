@@ -2,6 +2,7 @@ package com.wisdompark.minichoucreme.engin;
 
 import com.wisdompark.minichoucreme.storage.FPrintInfo;
 import com.wisdompark.minichoucreme.storage.PlaceInfo;
+import com.wisdompark.minichoucreme.storage.UserInfo;
 import com.wisdompark.minichoucreme.utils.Constraints;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ public class MiniChouContext {
     private static String mUserID;
     private static ArrayList<PlaceInfo> mPlaceInfoList = new ArrayList<>();
     private static ArrayList<FPrintInfo> mFPrintInfoList = new ArrayList<>();
+    private static ArrayList<UserInfo> mUserInfoList = new ArrayList<>();
     private static PlaceInfo mCurrentPlaceInfo = new PlaceInfo();
     private static PlaceInfo mLastSentPlaceInfo = new PlaceInfo();
     private static PlaceInfo mRealTimeSearchInfo = new PlaceInfo();
@@ -20,6 +22,14 @@ public class MiniChouContext {
     private static String watching_email = "";
     private static String myEmail = "";
     private static long firstLeavingTime = 0;
+
+    public static ArrayList<UserInfo> getmUserInfoList() {
+        return mUserInfoList;
+    }
+
+    public static void setmUserInfoList(ArrayList<UserInfo> mUserInfoList) {
+        MiniChouContext.mUserInfoList = mUserInfoList;
+    }
 
     public static long getFirstLeavingTime(){
         return firstLeavingTime;

@@ -2,6 +2,7 @@ package com.wisdompark.minichoucreme.login;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -10,6 +11,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.appcompat.app.AlertDialog;
+import androidx.preference.PreferenceManager;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -23,8 +26,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.wisdompark.minichoucreme.R;
+import com.wisdompark.minichoucreme.engin.MiniChouContext;
+import com.wisdompark.minichoucreme.storage.UserInfo;
 import com.wisdompark.minichoucreme.ui.MainActivity;
+import com.wisdompark.minichoucreme.utils.Constraints;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -65,6 +74,7 @@ public class EmailPasswordActivity extends BaseActivity implements View.OnClickL
                 } else {
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
+                setPreferences();
                 updateUI(user);
             }
         };
@@ -193,6 +203,31 @@ public class EmailPasswordActivity extends BaseActivity implements View.OnClickL
         if (user != null) {
             Intent intent = new Intent(this, MainActivity.class);
             //intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            String userId = user.getEmail().substring(0, user.getEmail().indexOf('@'));
+            boolean isFound = false;
+            for(UserInfo aInfo : MiniChouContext.getmUserInfoList()){
+                if(aInfo.equals(userId)){
+                    isFound = true;
+                    break;
+                }
+            }
+
+            if(isFound == false && userId.equals(MiniChouContext.getWatching_email()) == false){
+                FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                DatabaseReference databaseReference = firebaseDatabase.getReference();
+                String emailAddress = MiniChouContext.getWatching_email();
+
+                UserInfo userData = new UserInfo();
+                userData.setuId(userId);
+                userData.setuToken(FirebaseInstanceId.getInstance().getToken());
+
+                databaseReference
+                        .child(emailAddress)
+                        .child(Constraints.USER_NAME)
+                        .child(userId)
+                        .setValue(userData);
+            }
+
             if(disp_type == 0) { //초기 진입시
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
@@ -265,5 +300,18 @@ public class EmailPasswordActivity extends BaseActivity implements View.OnClickL
         super.onResume();
         Intent intent = getIntent();
         disp_type = intent.getIntExtra("DISPLAY_TYPE",0);
+    }
+
+    private void setPreferences() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean switchSP = sp.getBoolean("sync",false);
+        String strEmail = sp.getString("watching_email","");
+
+        MiniChouContext.setIsParentsMode(switchSP);
+        MiniChouContext.setWatching_email(strEmail);
+
+        if( user != null )
+            MiniChouContext.setMyEmail(user.getEmail());
     }
 }

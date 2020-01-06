@@ -47,6 +47,7 @@ public class FPrintChildListener implements ChildEventListener {
         return _instance;
     }
 
+    /*
     private static int MESSAGE_WHAT = 0;
     private static Handler handler= new Handler(new Handler.Callback() {
         @Override
@@ -74,6 +75,7 @@ public class FPrintChildListener implements ChildEventListener {
     private void removeMessage(){
         handler.removeMessages(MESSAGE_WHAT);
     }
+     */
 
     @Override
     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -113,13 +115,19 @@ public class FPrintChildListener implements ChildEventListener {
         placeInfo.setApList(pAP);
 
         fInfo.setmPlaceInfo(placeInfo);
+
+         String strTime =  MiniChouUtils.getPreference(mContext,Constraints.PREF_TIME_KEY);
+
+        long lastSentTime = 0 ;
+
+        if(strTime!=null)
+            lastSentTime= Long.parseLong(strTime);
+
         MiniChouContext.getmFPrintInfoList().add(fInfo);
 
-        if(isFirstLoadingCompleted == true) {
-            Intent intent = new Intent(Constraints.INTENT_DB_UPDATED);
-            intent.putExtra("TYPE", "FPRINT");
-            mContext.sendBroadcast(intent);
-        }
+        Intent intent = new Intent(Constraints.INTENT_DB_UPDATED);
+        intent.putExtra("TYPE", "FPRINT");
+        mContext.sendBroadcast(intent);
 
         //if(MiniChouContext.getmUserID().equals(fInfo.getmSenderID())) //자기가 보낸 메시지는 Noti안함
         //    return;
@@ -143,10 +151,6 @@ public class FPrintChildListener implements ChildEventListener {
         notiContent = MiniChouUtils.mills2Date(time,0);
         notiSender = fInfo.getmSenderID();
 
-        if(handler.hasMessages(MESSAGE_WHAT))
-            removeMessage();
-
-        sendDelayMessage();
     }
 
     @Override

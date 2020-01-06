@@ -3,6 +3,7 @@ package com.wisdompark.minichoucreme.utils;
 public class Constraints {
     final public static String FPRINT_NAME = "FPRINT";
     final public static String PLACE_NAME = "PLACE";
+    final public static String USER_NAME = "USER";
     final public static int RETRY_COUNT = 3;
     final public static String COMMAND_SEND_NAME = "CMD_SEND";
     final public static String COMMAND_RESPONSE_NAME = "CMD_RESP";
@@ -20,6 +21,7 @@ public class Constraints {
     //final public static int STAYING_INTERVAL_MIN = 2; //TEST
     final public static String INTENT_DB_UPDATED = "com.wisdompark.minichoucreme.INTENT_DB_UPDATED";
     final public static String PREF_SENT_KEY = "SENT_KEY";
+    final public static String PREF_TIME_KEY = "TIME_KEY";
     final public static String STR_OUT_PLACE = "이전 지역에서 벗어났습니다";
     final public static int NUM_OF_SEARCHED_LIST = 6;
 }
